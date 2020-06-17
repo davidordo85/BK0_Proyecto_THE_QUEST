@@ -43,6 +43,7 @@ class Asteroid:
         self.w = 30
         self.h = 30
 
+
         self.image = pg.image.load("./resources/images/asteroide.png")
         #self.image.fill(WHITE)
 
@@ -53,9 +54,12 @@ class Asteroid:
     def posy(self):
         return self.Cy - self.h // 2
 
-    
-    
+    def move(self, limInfX, limSupX):
+        if self.Cx <= limInfX:
+            self.Cx = limSupX
+            self.Cy = randint (30, 597)
 
+        self.Cx -= self.vx
 
 class Game:
     def __init__(self):
@@ -88,13 +92,16 @@ class Game:
             if key_pressed[K_DOWN]:
                 self.nave.Cy += self.nave.vy
 
+            
+
+
             self.pantalla.blit(self.espacio, (0, 0))
             self.pantalla.blit(self.nave.image, (self.nave.posx, self.nave.posy))
-            self.pantalla.blit(self.asteroid.image, (self.asteroid.posx, self.asteroid.posy))
-            self.asteroid.Cx -= self.asteroid.vx
+            self.pantalla.blit(self.asteroid.image, (self.asteroid.posx, self.asteroid.posy))          
 
             
-            self.nave.move(600)            
+            self.nave.move(600)
+            self.asteroid.move(0, 800)            
             pg.display.flip()
             
 
