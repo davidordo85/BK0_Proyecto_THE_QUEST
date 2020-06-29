@@ -38,10 +38,12 @@ class Movil:
     def color(self, tupla_color):
         self.__color = tupla_color
         self.image.fill(self.__color)
-    
+    '''
     def move(self, limSupX, limSupY):
         pass
-
+    '''
+    def move(self, *args, **kwargs):
+        pass
 
 class Nave(Movil):
     def __init__(self):
@@ -51,7 +53,7 @@ class Nave(Movil):
         self.image = pg.image.load('./resources/images/Rocket11_poquet.png')
         self.destroy = pg.mixer.Sound('./resources/sounds/retro-explosion-07.wav')
     
-    def move(self, limSupX, limSupY):
+    def move(self, limSupY):
         self.Cx += self.vx
         self.Cy += self.vy
 

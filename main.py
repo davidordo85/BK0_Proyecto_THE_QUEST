@@ -1,6 +1,7 @@
 import pygame as pg
 from pygame.locals import *
 from random import randint
+from sprites import *
 import sys
 
 BACKGROUND = (0, 0, 0)
@@ -8,189 +9,79 @@ WHITE = (255, 255, 255)
 BLUE = (0, 255, 0)
 WIN_SCORE_GAME = 100
 
-class Nave:
+class Asteroid(pg.sprite.Sprite):
+    vx = 0
+    vy = 0
+    __color= WHITE
+
     def __init__(self):
-        self.vx = 0
-        self.vy = 0
-        self.Cx = 30
-        self.Cy = 300
-        self.h = 42
-        self.w = 45
-    
-        self.image = pg.image.load("./resources/images/mini_nave.png")
-        #self.image.fill()
+        self.image = pg.Surface((40, 40))
+        self.image.fill(self.__color)
         self.destroy = pg.mixer.Sound('./resources/sounds/retro-explosion-07.wav')
-    
+        self.rect = self.image.get_rect()
+
+
     @property
-    def posx(self):
-        return self.Cx - self.w // 2
-    @property
-    def posy(self):
-        return self.Cy - self.h // 2
+    def color(self):
+        return self.__color
 
-
-    def move(self, limSupX, limSupY):
-        self.Cx += self.vx
-        self.Cy += self.vy
-
-        if self.Cy < self.h //2:
-            self.Cy = self.h // 2
-
-        if self.Cy > limSupY - self.h // 2:
-            self.Cy = limSupY - self.h // 2
+    @color.setter #función cambia color
+    def color(self, tupla_color):
+        self.__color = tupla_color
+        self.image.fill(self.__color)
 
     def estrellado(self, something):
-        dx = abs(self.Cx - something.Cx)
-        dy = abs(self.Cy - something.Cy)
+        dx = abs(self.rect.centerx - something.rect.centerx)
+        dy = abs(self.rect.centery - something.rect.centery)        
 
-        if dx < (self.w + something.w )//2 and dy < (self.h + something.h) // 2:
-            print("Estrellado") # quitar vida
-            self.destroy.play()
+        if dx < (self.rect.w + something.rect.w )//2 and dy < (self.rect.h + something.rect.h) // 2:
+            # quitar vida
+            self.destroy.play()   
         else:
             #print("No estrellado") # game_over False
             pass
 
+    def update(self, limSupX, limSupY):
+        self.vx = 5
+        if self.rect.centerx <= 0:
+            self.rect.centerx = 770
+            self.rect.centery = randint (30, 597)
 
-class Asteroid:
-    def __init__(self):
+        self.rect.centerx -= self.vx
 
-        self.vx = randint (3, 5)
-        self.vy = 0
-        self.Cx = 770
-        self.Cy = randint (30, 597)       
-        self.w = randint (30, 100) 
-        self.h = randint (30, 100)
+    def reset(self):
+        self.rect.centerx = 770
+        self.rect.centery = randint (30, 597) 
 
-
-        self.image = pg.image.load("./resources/images/asteroide.png")
-        #self.image.fill(WHITE)
-
-    @property
-    def posx(self):
-        return self.Cx - self.w // 2
-    @property
-    def posy(self):
-        return self.Cy - self.h // 2
-
-    def move(self, limInfX, limSupX):
-        if self.Cx <= limInfX:
-            self.Cx = limSupX
-            self.Cy = randint (30, 597)
-
-        self.Cx -= self.vx
-
-class Game:
-    def __init__(self):
-        self.pantalla = pg.display.set_mode((800, 600))
-        self.pantalla.fill(BACKGROUND)
-        self.espacio = pg.image.load("./resources/images/espacio.png")
-
-        self.nave = Nave()
-        self.asteroid1 = Asteroid()
-
-        self.status = 'Partida'
-
-        self.font = pg.font.Font('./resources/fonts/lobster-Regular.ttf', 30)
-        self.fontGrande = pg.font.Font('./resources/fonts/OdibeeSans-Regular.ttf', 30)
-        self.puntuacion = self.font.render("0", False, WHITE)
-
-        self.text_inicial = self.font.render("LA BUSQUEDA COMIENZA EN UN PLANETA TIERRA", False, WHITE)
-        self.text_inicial1 = self.font.render("MORIBUNDO POR EL CAMBIO CLIMÁTICO.", False, WHITE)
-        self.text_inicial2 = self.font.render("PARTIREMOS A LA BUSQUEDA DE UN PLANETA", False, WHITE)
-        self.text_inicial3 = self.font.render("COMPATIBLE CON LA VIDA HUMANA PARA COLONIZARLO.", False, WHITE)
-        
-        self.score = 0
-
-        pg.display.set_caption("THE QUEST")
-
-    def handlenEvent(self):
-        for event in pg.event.get():
-            if event.type == QUIT:
-                return True                
-                '''
-                if event.type == KEYDOWN:
-                    if event.key == K_UP:
-                        self.nave.vy  = -5                        
-                        
-                    if event.key == K_DOWN:
-                        self.nave.vy  = 5
-                        '''
-
-        key_pressed = pg.key.get_pressed()
-        if key_pressed[K_UP]:
-            self.nave.vy = -5
-                
-        elif key_pressed[K_DOWN]:
-            self.nave.vy = 5
-        else:
-            self.nave.vy = 0
-
-        return False
+class Nave(pg.sprite.Sprite):
+    vx = 0
+    vy = 0
+    __color = BLUE
     
-    def bucle_partida(self):
-        game_over = False
-        self.score = 0
-        self.puntuacion = self.font.render(str(self.score), True, WHITE)
-        while not game_over:
-            game_over = self.handlenEvent()            
-                
-            self.nave.move(800, 600)
-            self.asteroid1.move(0, 800)
-            self.nave.estrellado(self.asteroid1)
+    def __init__(self):
+        self.image = pg.Surface((65, 25))
+        self.image.fill(self.__color)
+        self.rect = self.image.get_rect()        
+        self.rect.centerx = 30
+        self.rect.centery = 300
 
-            
+    @property
+    def color(self):
+        return self.__color
 
-            if self.asteroid1.Cx <= 0:                
-                self.score += 20
-                self.puntuacion = self.font.render(str(self.score), True, WHITE)
+    @color.setter #función cambia color
+    def color(self, tupla_color):
+        self.__color = tupla_color
+        self.image.fill(self.__color)
 
-                print("Score {}".format(self.score))
+    def update(self, limSupY):
+        self.rect.centerx += self.vx
+        self.rect.centery += self.vy
 
-                if self.score == WIN_SCORE_GAME:
-                    game_over = True
-                
-            self.pantalla.blit(self.espacio, (0, 0))
-            self.pantalla.blit(self.nave.image, (self.nave.posx, self.nave.posy))
-            self.pantalla.blit(self.asteroid1.image, (self.asteroid1.posx, self.asteroid1.posy))
-            self.pantalla.blit(self.puntuacion, (740, 30))
-            pg.display.flip()
+        if self.rect.centery < self.rect.h // 2:
+            self.rect.centery = self.rect.h // 2
 
-        self.status = 'Inicio'
+        if self.rect.centery > limSupY - self.rect.h // 2:
+            self.rect.centery = limSupY - self.rect.h // 2
 
-    def bucle_inicio(self):
-        inicio_partida = False
-        while not inicio_partida:
-            for event in pg.event.get():
-                if event.type == KEYDOWN:
-                    if event.key == K_SPACE:
-                        inicio_partida = True
-
-            self.pantalla.fill((0, 0, 255))            
-            self.pantalla.blit(self.text_inicial, (30, 30))
-            self.pantalla.blit(self.text_inicial1, (30, 80))
-            self.pantalla.blit(self.text_inicial2, (30, 130))
-            self.pantalla.blit(self.text_inicial3, (30, 180))
-
-            pg.display.flip()
-
-        self.status = 'Partida'
-
-    #def start_menu(self):
         
-
-    def main_loop(self):        
-        while True:
-            if self.status == 'Partida':
-                self.bucle_partida()
-            else:
-                self.bucle_inicio()
-
-    def quit(self):
-        pg.quit()
-        sys.exit()
-
-if __name__ == '__main__':
-    pg.init()
-    game = Game()
-    game.main_loop()
-    game.quit()
