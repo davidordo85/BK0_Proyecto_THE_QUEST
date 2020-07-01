@@ -7,28 +7,27 @@ import sys
 BACKGROUND = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 255, 0)
-WIN_SCORE_GAME = 100
 
 class Asteroid(pg.sprite.Sprite):
     vx = 0
     vy = 0
-    __color= WHITE
+    num_sprites = 29
 
     def __init__(self):
-        self.image = pg.Surface((40, 40))
-        self.image.fill(self.__color)
-        self.destroy = pg.mixer.Sound('./resources/sounds/retro-explosion-07.wav')
+        self.image = pg.Surface((40, 40), pg.SRCALPHA, 32)        
         self.rect = self.image.get_rect()
+        self.images = self.loadImages()
+        self.image_act = 0
+        self.image.blit(self.images[self.image_act], [0, 0])
 
+        self.destroy = pg.mixer.Sound('./resources/sounds/retro-explosion-07.wav')
 
-    @property
-    def color(self):
-        return self.__color
-
-    @color.setter #función cambia color
-    def color(self, tupla_color):
-        self.__color = tupla_color
-        self.image.fill(self.__color)
+    def loadImages(self):
+        images = []
+        for i in range(self.num_sprites):
+            image = pg.image.load("./resources/sprites/asteroid/asteroid_{}.png".format(i))
+            images.append(image)
+        return images
 
     def estrellado(self, something):
         dx = abs(self.rect.centerx - something.rect.centerx)
@@ -42,37 +41,45 @@ class Asteroid(pg.sprite.Sprite):
             pass
 
     def update(self, limSupX, limSupY):
-        self.vx = 5
+        self.vx = 10
         if self.rect.centerx <= 0:
-            self.rect.centerx = 770
-            self.rect.centery = randint (30, 597)
+            self.rect.centerx = 3000
+            self.rect.centery = randint (40, 560)
 
         self.rect.centerx -= self.vx
+        #animar asteroide
+        self.image_act += 1
+        if self.image_act >= self.num_sprites:
+            self.image_act = 0
 
+        self.image.blit(self.images[self.image_act], (0, 0))
+    '''
     def reset(self):
         self.rect.centerx = 770
         self.rect.centery = randint (30, 597) 
-
+    '''
 class Nave(pg.sprite.Sprite):
     vx = 0
     vy = 0
-    __color = BLUE
+    num_sprites = 5
     
     def __init__(self):
-        self.image = pg.Surface((65, 25))
-        self.image.fill(self.__color)
-        self.rect = self.image.get_rect()        
-        self.rect.centerx = 30
+        self.image = pg.Surface((65, 65), pg.SRCALPHA, 32)        
+        self.rect = self.image.get_rect()
+        self.images = self.loadImages()
+        self.image_act = 4
+        self.image.blit(self.images[self.image_act], [0, 0])
+
+        self.rect.centerx = 40
         self.rect.centery = 300
+        
 
-    @property
-    def color(self):
-        return self.__color
-
-    @color.setter #función cambia color
-    def color(self, tupla_color):
-        self.__color = tupla_color
-        self.image.fill(self.__color)
+    def loadImages(self):
+        images = []
+        for i in range(self.num_sprites):
+            image = pg.image.load("./resources/sprites/nave/Spaceships__{}.png".format(i))
+            images.append(image)
+        return images
 
     def update(self, limSupY):
         self.rect.centerx += self.vx
@@ -83,5 +90,3 @@ class Nave(pg.sprite.Sprite):
 
         if self.rect.centery > limSupY - self.rect.h // 2:
             self.rect.centery = limSupY - self.rect.h // 2
-
-        
