@@ -17,3 +17,8 @@ Ejecutar
 ```
 pip install pygame
 ```
+
+Mensaje
+```
+Perdón de antemano, pero no he podido terminarlo, me gustaria poder terminarlo en estas 3 proximas semanas
+```

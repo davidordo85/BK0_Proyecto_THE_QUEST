@@ -1,3 +1,5 @@
+
+
 import pygame as pg
 from pygame.locals import *
 from random import randint
@@ -9,8 +11,8 @@ from Objetos import *
 WHITE = (255,255,255)
 BLUE = (0,255,0)
 BLACK = (0, 0, 0)
-WIN_SCORE_GAME = 200
-#WIN_SCORE_GAME_01 = 4000
+WIN_SCORE_GAME = 1000
+WIN_SCORE_GAME_01 = 4000
 
 FPS = 60
 
@@ -22,19 +24,13 @@ class Game():
         self.espacio1 = pg.image.load("./resources/images/orion.jpg")
         
         self.titulo = pg.font.Font('./resources/fonts/OdibeeSans-Regular.ttf', 100)
-        self.k_space = pg.font.Font('./resources/fonts/Lobster-Regular.ttf', 35)        
+        self.k_space = pg.font.Font('./resources/fonts/Lobster-Regular.ttf', 35)
 
         self.text_inicial = self.titulo.render("THE QUEST", False, BLACK, BLUE)
         self.text_space = self.k_space.render("PRESIONAR <SPACE> PARA CONTINUAR", False, BLACK)
+        self.text_aterrizar = self.k_space.render("PRESIONAR TECLA <T> PARA ATERRIZAR", False, WHITE)
 
         self.status = 'Portada'
-        
-        self.text_siguiente = pg.font.Font('./resources/fonts/odibeeSans-Regular.ttf', 30)        
-
-        self.text_inicial0 = self.text_siguiente.render("LA BUSQUEDA COMIENZA EN UN PLANETA TIERRA ", False, WHITE)
-        self.text_inicial1 = self.text_siguiente.render("MORIBUNDO POR EL CAMBIO CLIMÁTICO.", False, WHITE)
-        self.text_inicial2 = self.text_siguiente.render("PARTIREMOS A LA BUSQUEDA DE UN PLANETA", False, WHITE)
-        self.text_inicial3 = self.text_siguiente.render("COMPATIBLE CON LA VIDA HUMANA PARA COLONIZARLO.", False, WHITE)
         
         self.pantalla = pg.display.set_mode((800, 600))
         self.espacio = pg.image.load("./resources/images/fondo_espacio.png")
@@ -44,13 +40,13 @@ class Game():
         self.asteroid1 = Asteroid()
         self.asteroidG = AsteroidGold()
         self.planeta_desert = Planeta()
-        
 
         self.asteroidsGroup = pg.sprite.Group()
 
         self.asteroidsGroup.add(self.asteroid)
         self.asteroidsGroup.add(self.asteroid1)
-        self.asteroidsGroup.add(self.asteroidG)        
+        self.asteroidsGroup.add(self.asteroidG)
+                
 
         self.puntuacion = self.font.render("0", True, WHITE)
 
@@ -78,26 +74,8 @@ class Game():
 
             pg.display.flip()
         
-        self.status = 'Partida'
-    '''
-    def bucle_introduccion(self):
-        inicio_portada = False
-        while not inicio_portada:
-            for event in pg.event.get():
-                if event.type == KEYDOWN:
-                    if event.key == K_SPACE:
-                        inicio_portada = True            
+        self.status = 'Empezar'
 
-            self.pantalla.fill((0, 0, 255))            
-            self.pantalla.blit(self.text_inicial0, (30, 30))
-            self.pantalla.blit(self.text_inicial1, (30, 80))
-            self.pantalla.blit(self.text_inicial2, (30, 130))
-            self.pantalla.blit(self.text_inicial3, (30, 180))
-
-            pg.display.flip()
-
-        self.status = 'Partida'
-    '''
     def handlenEvent(self):
         for event in pg.event.get():            
             if event.type == QUIT:
@@ -123,15 +101,37 @@ class Game():
             self.nave.vy = 0
 
         return False
+
+    def primer_nivel(self):
+        self.status = 'Empezar'
+        primerN = False
         
-    def bucle_partida(self):        
-        bucle_juego = False        
+        while not primerN:
+            for event in pg.event.get():
+                if event.type == KEYDOWN:
+                    if event.key == K_SPACE:
+                        primerN = True            
+
+            self.pantalla.blit(self.espacio, (0,0))
+            self.pantalla.blit(self.nave. image, (30, 270))
+            self.pantalla.blit(self.puntuacion, (30, 30))
+            self.pantalla.blit(self.text_space, (100, 400))
+            pg.display.flip()
+            self.status = 'Partida'
+
+        else:
+            primerN = True
+        
+
+    def pantalla_primer_nivel(self):        
+        primer = False        
         self.score = 0
         x = 0        
         self.puntuacion = self.font.render(str(self.score), True, WHITE)
-        while not bucle_juego:            
-            bucle_juego = self.handlenEvent()
+        while not primer:            
+            primer = self.handlenEvent()
             self.allSprites.update(800, 600)
+            self.nave.update(800, 600)
             #self.planeta_desert.update(800, 600)
             self.nave.estrellado(self.asteroidsGroup)                       
 
@@ -141,13 +141,17 @@ class Game():
             elif self.asteroidG.rect.centerx <= 0:
                 self.score += 40
                 self.puntuacion = self.font.render(str(self.score), True, WHITE)
-                               
-            if self.score >= WIN_SCORE_GAME:
+                    
+            
+            if self.score >= WIN_SCORE_GAME:                
                 self.planeta_desert.update(800, 600)
+                self.nave.rotate(20)
+                self.pantalla.blit(self.text_aterrizar, (100, 400))
+                pg.display.flip()
+                # desaparezcan asteroidGroup
+                    
                 if self.nave.rect.centerx == 570:
-                    pass
-            else:
-                bucle_juego = False
+                    primer = True
 
             #Animación pantalla        
             x -= 0.5
@@ -156,13 +160,16 @@ class Game():
 
             self.pantalla.blit(self.espacio, (x, 0))    
             self.pantalla.blit(self.espacio, (x+2400, 0))
+            
             self.allSprites.draw(self.pantalla)
+                        
             self.pantalla.blit(self.planeta_desert.image, (self.planeta_desert.rect.x, self.planeta_desert.rect.y))                      
             self.pantalla.blit(self.puntuacion, (30, 30))            
 
             pg.display.flip()
             self.status = 'EntreJuego'            
 
+    # Aún en proceso
     def bucle_intermedio(self):
         bucle_entreJuego = False
         self.puntuacion = self.font.render(str(self.score), True, WHITE)
@@ -172,9 +179,14 @@ class Game():
                     if event.key == K_SPACE:
                         bucle_entreJuego = True
 
+            self.nave.rect.centerx = 50
+            self.planeta_desert.rect.centerx = 1100
+
             self.pantalla.fill((0, 0, 255))
             self.pantalla.blit(self.text_space, (100, 400))
-            self.pantalla.blit(self.puntuacion, (400, 300))            
+            self.pantalla.blit(self.puntuacion, (400, 300))
+            
+         
 
             pg.display.flip()
 
@@ -182,15 +194,14 @@ class Game():
             
         
 
-    def bucle_partida_1(self):
-        bucle_juego1 = False        
+    def pantalla_segundo_nivel(self):
+        segundo = False        
         x = 0
         self.puntuacion = self.font.render(str(self.score), True, WHITE)
-        while not bucle_juego1:
-            bucle_juego1 = self.handlenEvent()
-            self.nave.rect.centerx = 40
-            self.planeta_desert.rect.centerx = 1100        
+        while not segundo:
+            segundo = self.handlenEvent()                    
             self.allSprites.update(800, 600)
+            self.nave.update(800, 600)
             #self.asteroid.estrellado(self.nave)
             self.nave.estrellado(self.asteroidsGroup)
             
@@ -202,12 +213,13 @@ class Game():
                 self.score += 80
                 self.puntuacion = self.font.render(str(self.score), True, WHITE)
                 
-            if self.score >= 4000:
+            if self.score >= WIN_SCORE_GAME_01:
                 self.planeta_desert.update(800, 600)
+                self.nave.rotate(20)
                 if self.nave.rect.centerx == 570:
-                    bucle_juego1 = True
+                    segundo = True
             else:
-                bucle_juego1 = False
+                segundo = False
                 
             x -= 0.5
             if x <= -2400:
@@ -228,11 +240,13 @@ class Game():
             if self.status == 'Portada':
                 self.bucle_principal()
             elif self.status == 'Partida':
-                self.bucle_partida()
+                self.pantalla_primer_nivel()
             elif self.status == 'Partida_1':
-                self.bucle_partida_1()
+                self.pantalla_segundo_nivel()
             elif self.status == 'EntreJuego':
-                self.bucle_intermedio()                    
+                self.bucle_intermedio()
+            elif self.status == 'Empezar':
+                self.primer_nivel()                    
             else:
                 pass
 

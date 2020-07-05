@@ -120,7 +120,7 @@ class Nave(pg.sprite.Sprite):
         
         
 
-        #self.destroy = pg.mixer.Sound('./resources/sounds/retro-explosion-07.wav')
+        self.destroy = pg.mixer.Sound('./resources/sounds/retro-explosion-07.wav')
 
         self.rect.centerx = 40
         self.rect.centery = 300
@@ -128,8 +128,9 @@ class Nave(pg.sprite.Sprite):
     def estrellado(self, group):
         lista_colision = pg.sprite.spritecollide(self, group, False)
         if len(lista_colision) > 0:
-            #self.destroy.play()
-            self.__status = 'explotando'       
+            self.destroy.play()
+            #hacer animación destrucción
+                   
     
     def loadImages(self):
         images = []
@@ -138,7 +139,19 @@ class Nave(pg.sprite.Sprite):
             images.append(image)
         return images
 
-    def update(self, limSupX, limSupY):        
+    def update(self, limSupX, limSupY):
+        self.rect.centerx += self.vx
+        self.rect.centery += self.vy
+        if self.rect.centerx >= 570:
+            self.vx = 0
+
+        if self.rect.centery < self.rect.h // 2:
+            self.rect.centery = self.rect.h // 2
+
+        if self.rect.centery > limSupY - self.rect.h // 2:
+            self.rect.centery = limSupY - self.rect.h // 2
+
+    def rotate(self, dt):
         dt = self.clock.tick(FPS)
         self.current_time += dt
 
@@ -154,29 +167,13 @@ class Nave(pg.sprite.Sprite):
 
             self.rect.centerx = self.giraCentro[0] - dX
             self.rect.centery = self.giraCentro[1] - dY                        
-
+            
             if self.angle % 180 == 0:
                 self.vx = 1
                 self.rect.centerx -= self.vx
                 self.rotando = False
-                
-                
-        else:            
-            self.rect.centerx += self.vx
-            self.rect.centery += self.vy
-            if self.rect.centerx >= 570:
-                self.vx = 0
 
-            if self.rect.centery < self.rect.h // 2:
-                self.rect.centery = self.rect.h // 2
-
-            if self.rect.centery > limSupY - self.rect.h // 2:
-                self.rect.centery = limSupY - self.rect.h // 2
             
-               
-
-
- 
 
 class Planeta(pg.sprite.Sprite):
     vx = 0
