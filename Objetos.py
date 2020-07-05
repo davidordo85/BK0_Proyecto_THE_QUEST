@@ -138,7 +138,7 @@ class Nave(pg.sprite.Sprite):
             images.append(image)
         return images
 
-    def update(self, limSupX, limSupY):
+    def update(self, limSupX, limSupY):        
         dt = self.clock.tick(FPS)
         self.current_time += dt
 
@@ -153,15 +153,19 @@ class Nave(pg.sprite.Sprite):
             dY = mitadH - self.h // 2
 
             self.rect.centerx = self.giraCentro[0] - dX
-            self.rect.centery = self.giraCentro[1] - dY
+            self.rect.centery = self.giraCentro[1] - dY                        
 
             if self.angle % 180 == 0:
-                self.rect.centerx -=
+                self.vx = 1
+                self.rect.centerx -= self.vx
+                self.rotando = False
                 
-
+                
         else:            
             self.rect.centerx += self.vx
             self.rect.centery += self.vy
+            if self.rect.centerx >= 570:
+                self.vx = 0
 
             if self.rect.centery < self.rect.h // 2:
                 self.rect.centery = self.rect.h // 2
@@ -183,7 +187,7 @@ class Planeta(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         #self.image.blit(self.image)
         
-        self.rect.centerx = 1000
+        self.rect.centerx = 1100
         self.rect.centery = 300        
 
 

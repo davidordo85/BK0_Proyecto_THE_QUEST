@@ -10,7 +10,7 @@ WHITE = (255,255,255)
 BLUE = (0,255,0)
 BLACK = (0, 0, 0)
 WIN_SCORE_GAME = 200
-WIN_SCORE_GAME_01 = 2000
+#WIN_SCORE_GAME_01 = 4000
 
 FPS = 60
 
@@ -103,12 +103,15 @@ class Game():
             if event.type == QUIT:
                 return self.quit()
                 
-                if event.type == KEYDOWN:
-                    if event.key == K_UP:
-                        self.nave.vy  = -5                        
+            if event.type == KEYDOWN:
+                if event.key == K_UP:
+                    self.nave.vy  = -5                        
                         
-                    if event.key == K_DOWN:
-                        self.nave.vy  = 5                        
+                if event.key == K_DOWN:
+                    self.nave.vy  = 5                
+                if event.key == K_t:                   
+                    self.nave.rotando = True
+                    
 
         key_pressed = pg.key.get_pressed()
         if key_pressed[K_UP]:
@@ -124,17 +127,13 @@ class Game():
     def bucle_partida(self):        
         bucle_juego = False        
         self.score = 0
-        x = 0
-        
-        
+        x = 0        
         self.puntuacion = self.font.render(str(self.score), True, WHITE)
         while not bucle_juego:            
             bucle_juego = self.handlenEvent()
-
             self.allSprites.update(800, 600)
-            #self.planeta_desert.update(800, 600)            
-            
-            self.nave.estrellado(self.asteroidsGroup)           
+            #self.planeta_desert.update(800, 600)
+            self.nave.estrellado(self.asteroidsGroup)                       
 
             if self.asteroid.rect.centerx <= 0 or self.asteroid1.rect.centerx <= 0:                
                 self.score += 20
@@ -145,11 +144,8 @@ class Game():
                                
             if self.score >= WIN_SCORE_GAME:
                 self.planeta_desert.update(800, 600)
-                self.nave.rotando = True
-
-                
-                #bucle_juego = True
-                                
+                if self.nave.rect.centerx == 570:
+                    pass
             else:
                 bucle_juego = False
 
@@ -164,7 +160,8 @@ class Game():
             self.pantalla.blit(self.planeta_desert.image, (self.planeta_desert.rect.x, self.planeta_desert.rect.y))                      
             self.pantalla.blit(self.puntuacion, (30, 30))            
 
-            pg.display.flip()            
+            pg.display.flip()
+            self.status = 'EntreJuego'            
 
     def bucle_intermedio(self):
         bucle_entreJuego = False
@@ -177,7 +174,7 @@ class Game():
 
             self.pantalla.fill((0, 0, 255))
             self.pantalla.blit(self.text_space, (100, 400))
-            self.pantalla.blit(self.puntuacion, (400, 300))
+            self.pantalla.blit(self.puntuacion, (400, 300))            
 
             pg.display.flip()
 
@@ -190,19 +187,27 @@ class Game():
         x = 0
         self.puntuacion = self.font.render(str(self.score), True, WHITE)
         while not bucle_juego1:
-            bucle_juego1 = self.handlenEvent()             
-               
+            bucle_juego1 = self.handlenEvent()
+            self.nave.rect.centerx = 40
+            self.planeta_desert.rect.centerx = 1100        
             self.allSprites.update(800, 600)
             #self.asteroid.estrellado(self.nave)
-            self.nave.estrellado(self.asteroidsGroup)          
+            self.nave.estrellado(self.asteroidsGroup)
+            
 
-            if self.asteroid.rect.centerx <= 0:                
+            if self.asteroid.rect.centerx <= 0 or self.asteroid1.rect.centerx <= 0:                
                 self.score += 40
-                self.puntuacion = self.font.render(str(self.score), True, WHITE)                
+                self.puntuacion = self.font.render(str(self.score), True, WHITE)
+            elif self.asteroidG.rect.centerx <= 0:
+                self.score += 80
+                self.puntuacion = self.font.render(str(self.score), True, WHITE)
                 
-                if self.score == WIN_SCORE_GAME:
+            if self.score >= 4000:
+                self.planeta_desert.update(800, 600)
+                if self.nave.rect.centerx == 570:
                     bucle_juego1 = True
-                    
+            else:
+                bucle_juego1 = False
                 
             x -= 0.5
             if x <= -2400:
@@ -210,21 +215,12 @@ class Game():
 
             self.pantalla.blit(self.espacio, (x, 0))    
             self.pantalla.blit(self.espacio, (x+2400, 0))
-            self.allSprites.draw(self.pantalla)
-            '''         
-            self.pantalla.blit(self.nave.image, (self.nave.rect.x, self.nave.rect.y))
-            self.pantalla.blit(self.asteroid.image, (self.asteroid.rect.x, self.asteroid.rect.y))
-            '''
-            self.pantalla.blit(self.puntuacion, (740, 30))
-
+            self.allSprites.draw(self.pantalla)            
+            self.pantalla.blit(self.planeta_desert.image, (self.planeta_desert.rect.x, self.planeta_desert.rect.y))                      
+            self.pantalla.blit(self.puntuacion, (30, 30))
+            
             pg.display.flip()
-    '''
-    def Game_over(self):
-        game_over = False
-
-        while not game_over:
-            game_over = self.handlenEvent()
-    '''       
+            self.status = 'EntreJuego'     
 
     
     def main_loop(self):
