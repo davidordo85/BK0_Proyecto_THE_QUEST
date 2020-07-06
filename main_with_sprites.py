@@ -11,7 +11,7 @@ from Objetos import *
 WHITE = (255,255,255)
 BLUE = (0,255,0)
 BLACK = (0, 0, 0)
-WIN_SCORE_GAME = 1000
+WIN_SCORE_GAME = 300
 WIN_SCORE_GAME_01 = 4000
 
 FPS = 60
@@ -74,7 +74,7 @@ class Game():
 
             pg.display.flip()
         
-        self.status = 'Empezar'
+        self.status = 'Partida'
 
     def handlenEvent(self):
         for event in pg.event.get():            
@@ -102,27 +102,37 @@ class Game():
 
         return False
 
-    def primer_nivel(self):
-        self.status = 'Empezar'
-        primerN = False
-        
-        while not primerN:
-            for event in pg.event.get():
-                if event.type == KEYDOWN:
-                    if event.key == K_SPACE:
-                        primerN = True            
+    
 
-            self.pantalla.blit(self.espacio, (0,0))
-            self.pantalla.blit(self.nave. image, (30, 270))
+    def Aterrizando(self):
+        aterrizaje = False
+        x = 0        
+        self.puntuacion = self.font.render(str(self.score), True, WHITE)
+        while not aterrizaje:
+            aterrizaje = self.handlenEvent()
+            self.planeta_desert.update(800, 600)
+            self.nave.rotate(20)
+            self.nave.update(800, 600)
+            
+            #self.pantalla.blit(self.text_aterrizar, (100, 400))
+            if self.nave.rect.centerx == 570:
+                aterrizaje = True
+                self.status = 'EntreJuego'
+            x -= 0.5
+            if x <= -2400:
+                x = 0
+
+            self.pantalla.blit(self.espacio, (x, 0))    
+            self.pantalla.blit(self.espacio, (x+2400, 0))
+            self.pantalla.blit(self.nave.image, (self.nave.rect.x, self.nave.rect.y))
+            self.pantalla.blit(self.planeta_desert.image, (self.planeta_desert.rect.x, self.planeta_desert.rect.y))
+            self.pantalla.blit(self.text_aterrizar, (100, 400))
             self.pantalla.blit(self.puntuacion, (30, 30))
-            self.pantalla.blit(self.text_space, (100, 400))
-            pg.display.flip()
-            self.status = 'Partida'
-
-        else:
-            primerN = True
         
 
+            pg.display.flip()
+
+        
     def pantalla_primer_nivel(self):        
         primer = False        
         self.score = 0
@@ -131,7 +141,7 @@ class Game():
         while not primer:            
             primer = self.handlenEvent()
             self.allSprites.update(800, 600)
-            self.nave.update(800, 600)
+            self.nave.update(800, 600)            
             #self.planeta_desert.update(800, 600)
             self.nave.estrellado(self.asteroidsGroup)                       
 
@@ -143,15 +153,12 @@ class Game():
                 self.puntuacion = self.font.render(str(self.score), True, WHITE)
                     
             
-            if self.score >= WIN_SCORE_GAME:                
-                self.planeta_desert.update(800, 600)
-                self.nave.rotate(20)
-                self.pantalla.blit(self.text_aterrizar, (100, 400))
-                pg.display.flip()
-                # desaparezcan asteroidGroup
-                    
-                if self.nave.rect.centerx == 570:
-                    primer = True
+            if self.score >= WIN_SCORE_GAME:
+                primer = True                
+                self.status = 'Aterrizaje'
+
+            
+                
 
             #Animación pantalla        
             x -= 0.5
@@ -160,14 +167,11 @@ class Game():
 
             self.pantalla.blit(self.espacio, (x, 0))    
             self.pantalla.blit(self.espacio, (x+2400, 0))
-            
-            self.allSprites.draw(self.pantalla)
-                        
-            self.pantalla.blit(self.planeta_desert.image, (self.planeta_desert.rect.x, self.planeta_desert.rect.y))                      
+            self.allSprites.draw(self.pantalla)                         
             self.pantalla.blit(self.puntuacion, (30, 30))            
 
             pg.display.flip()
-            self.status = 'EntreJuego'            
+                      
 
     # Aún en proceso
     def bucle_intermedio(self):
@@ -245,8 +249,8 @@ class Game():
                 self.pantalla_segundo_nivel()
             elif self.status == 'EntreJuego':
                 self.bucle_intermedio()
-            elif self.status == 'Empezar':
-                self.primer_nivel()                    
+            elif self.status == 'Aterrizaje':
+                self.Aterrizando()                    
             else:
                 pass
 

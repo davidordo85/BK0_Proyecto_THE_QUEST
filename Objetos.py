@@ -32,11 +32,7 @@ class Asteroid(pg.sprite.Sprite):
             image = pg.image.load("./resources/sprites/asteroid/asteroid_{}.png".format(i))            
             images.append(image)            
         return images
-       
-    def cambio_asteroid(self):
-        if self.w == 40:
-            self.loadImages()
-        self.loadImages1()
+
 
     def estrellado(self, group):
         lista_colision = pg.sprite.spritecollide(self, group, False)
@@ -47,9 +43,10 @@ class Asteroid(pg.sprite.Sprite):
         self.vx = randint(3,10)
         if self.rect.centerx <= 0:
             self.rect.centerx = 800
-            self.rect.centery = randint (40, 560)                                      
-            
-        self.rect.centerx -= self.vx
+            self.rect.centery = randint (40, 560)
+        else:
+            self.rect.centerx -= self.vx
+
         #animar asteroide
         self.image_act += 1
         if self.image_act >= self.num_sprites:
@@ -87,6 +84,7 @@ class AsteroidGold(pg.sprite.Sprite):
 
         self.rect.centerx -= self.vx
         #animar asteroide
+        
         self.image_act += 1
         if self.image_act >= self.num_sprites:
             self.image_act = 0
@@ -106,31 +104,27 @@ class Nave(pg.sprite.Sprite):
         super().__init__()        
         self.image = pg.Surface((self.w, self.h), pg.SRCALPHA, 32)
         self.rect = self.image.get_rect()
+        self.images = self.loadImages()
+        
         self.rect.centerx = x
         self.rect.centery = y
         self.giraCentro = (x, y)
+        
 
         self.animation_time = FPS//1000 * 3
         self.angle = 0
         self.current_time = 0
+        self.image_act = 0               
         self.frame = pg.image.load('./resources/sprites/nave/Spaceships_0.png').convert_alpha()
         self.image.blit(self.frame, (0, 0), (0, 0, self.w, self.h))
-
+        
         self.rotando = False
-        
-        
 
         self.destroy = pg.mixer.Sound('./resources/sounds/retro-explosion-07.wav')
 
         self.rect.centerx = 40
         self.rect.centery = 300
-
-    def estrellado(self, group):
-        lista_colision = pg.sprite.spritecollide(self, group, False)
-        if len(lista_colision) > 0:
-            self.destroy.play()
-            #hacer animación destrucción
-                   
+            
     
     def loadImages(self):
         images = []
@@ -138,6 +132,18 @@ class Nave(pg.sprite.Sprite):
             image = pg.image.load("./resources/sprites/nave/Spaceships_{}.png".format(i))
             images.append(image)
         return images
+    def estrellado(self, group):
+        lista_colision = pg.sprite.spritecollide(self, group, False)
+        if len(lista_colision) > 0:
+            self.destroy.play()
+            self.images = self.loadImages()
+            self.image_act += 1            
+            if self.image_act >= self.num_sprites:
+                self.image_act = 16
+            self.image.blit(self.images[self.image_act], (0, 0))
+                    
+        else:
+            pass
 
     def update(self, limSupX, limSupY):
         self.rect.centerx += self.vx
@@ -168,12 +174,10 @@ class Nave(pg.sprite.Sprite):
             self.rect.centerx = self.giraCentro[0] - dX
             self.rect.centery = self.giraCentro[1] - dY                        
             
-            if self.angle % 180 == 0:
+            if self.angle % 180 <= 0:
                 self.vx = 1
                 self.rect.centerx -= self.vx
                 self.rotando = False
-
-            
 
 class Planeta(pg.sprite.Sprite):
     vx = 0
